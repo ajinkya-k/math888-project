@@ -1,0 +1,135 @@
+<meta charset="utf-8" emacsmode="-*- markdown -*-"><style class="fallback">body{visibility:hidden;}</style><link rel="stylesheet" href="apidoc.css"><link rel="preconnect" href="https://fonts.gstatic.com"><link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet"><style>body{font-family: 'Lato', sans-serif}</style>
+<p style="text-align: left;">
+                        **Ajinkya Kokandakar**
+                        <span style="float:right;">[Home](index.html)
+</span>
+
+<H1 align="center"> **Causal Inference for Networks** </H1>
+
+<p align="center">Ajinkya Kokandakar</p>
+
+**Sections**
+
+- [Introduction](#introduction)
+- [Settings and Notation](#settingsandnotation)
+- [Refining the problem](#refiningtheproblem)
+- [Open Questions](#openquestions)
+- [References](#references)
+
+Introduction
+================================================================================
+The classical causal inference setting assumes that the units are independent of each other. The SUTVA assumption asserts that the potential outcome for a unit is a well defined function of the unit's own treatment, but not that of others. This precludes the possibility of the outcome (both potential and observed) for a unit being dependent on other unit's treatment status. Although this setting allows for studying a rich class of problems, it cannot model scenarios where the units have some sort of relationship with each other. The most common example for this is vaccines - other people being vaccinated reduces the risk of infection for each individual. 
+Causal inference for networks studies such problems. However, it focuses primarily on intereference - how one units treatment affects other units' potential oucomes _given a fixed network_. In this model of causal inference, the network acts similar to a confounder. I am interested in studying what would be the effect of changing the network between units itself. Instead of the network being a confounder what if the network is the treatment? What would be the outcome for each unit if we change the connections between the units? Suppose we have observed the social network in the left panel of Figure [counter], but we want to know what the outcome say income for each household under the alered social configuration in the right panel. My goal is to work out the theory for how we can estimate outcomes in the second configuration given covariate and observed outcome data in the first configuration.
+
+![Figure [counter]: Based on the observed network in the left panel, we want to infer the outcomes for the same units with a difference configuration in the right panel](Counterfactual_networks.png)
+
+
+Settings and Notation
+================================================================================
+We have a set of $n$ units that are connected in a network, and thus form a node set denoted $\mathcal{N}$. Let $A$ be the observed adjacency matrix. Lowercase $a$ denotes a fixed (but potential) adjacency matrix. Let $a_{i\cdot}$ denotes the row of the adjacency matrix corresponding to node $i$ and $a_{ij} = 1$ if the nodes $i$ and $j$ are connected in the network that corresponds to the adjacency matrix $a$. Let $\mathscr{A}$ denote the set of all possible networks for the set of nodes $\mathcal{N}$.  For each unit $i = 1,2,3, \dots, n$,
+we observe covariates $\mathbf{X}_i$ and the outcome $Y_i$. We don't have a separate treatment variable because we are interested in the effect of chaning the adjecancy matrix. In the most general case, let $a$ and $a'$ denote two adjecancy matrices for the set of units, we can define potential outcomes $Y_i(a)$ and $Y_i(a')$ corresponding to the two network configurations and an effect of interest maybe :
+$$
+	Y(a) - Y(a') \quad a, a \in \mathscr{A}.
+$$
+This hints at an important departure from the SUTVA model. The potential outcomes are indexed by an adjecancy matrix $a$ (or $a'$) _not_ by a scalar.
+There are $M = 2^\binom{n}{2}$ possible adjecancy matrix, which means there are $M$ different potential outomes $Y_i(a)$ for each unit $i$. 
+Following the potential outcomes framework, we posit that there exist potential outcomes $Y_i(a)$ for each (potential) adjacency matrix $a$. Therefore, without any further restrictions there are $n \cdot 2^{M}$ total potential outcomes for the entire network. However, we only observe the realized outcome for each unit, i.e. we only observe $n$ outcomes. In contrast, in the classical causal inference setting with i.i.d. units, there are $2n$ potential outcomes of which we observe $n$. Moreover, in the general interference setting where the treatments are applied to the units, we have $n \cdot 2^n$ potential outcomes, which is much smaller than in the setting we consider here. Without any further assumptions restricting the number of potential outcomes, it is not possible to perform causal inference.
+
+
+Setting | No. of potential outcomes | No. of observed outcomes 
+----|:----:|:----:
+SUTVA| $2 \cdot n$ | $n$
+Interference| $n \cdot 2^n$ | $n$
+Network as treatment | $n \cdot 2^{\binom{n}{2}}$ | $n$
+[Table [tabpo]: Comparing the number of potential outcomes in different causal inference settings.]
+
+It is clear from [Table [tabpo]] that absent any more assumptions it is impossible to infer any causal effects. In essence, we need to find a way to reduce the number of potential outcomes to be able to make any inferences. Note that SUTVA in effect reduces the potential outcomes from $n \cdot 2^n$ by imposing the no interference assumption to $2n$. 
+Since, a no interference assumption is clearly inapplicable in a network setting we must find alternative identification startegies.
+
+In the current _interference_ literature, there are in effect three strategies to achieve this - exposure mappings [#AS2017,#FMWA2018], neighborhood interference [#OSDvdL2020], and Markov Random Fields [#TFS2021]. Both the exposure mapping and the neighborhood interfernce framework define an "exposure" variable that maps the treatment status of the unit and that of its neighbors to define an "exposure" variable, and the potential outcomes are defined as a function of this exposure variable. However, none of these strategies are directly applicable as we intend to _change_ the social network structure itself. It is possible to define an exposure that depends on the network configuration and explore this possiblity in another (parallel) project. 
+
+Refining the problem
+--------------------------------------------------------------------------------
+Since the general problem is intractable, we take a different approach where we 
+focus on exposure of a different kind. We conside the exosure:
+
+> "Is a unit connected to a pre-specified unit in the network? What is the effect of being connected to a pre-specified unit?"
+
+This is motivated by frequent observation in network statistics relating to the degree distribution of a social network. 
+Briefly, research has noted that there are a few _influential units_ which have a high degree i.e. high number of neighbors, 
+alongwith many other units that usually have a low degree.
+
+With this definition of exosure, a unit is considered to be treated if it is connected to the influential unit. To fix ideas,
+let the $k$ denote the influential unit, then we consider the unit $i$ to be treated if $a_{ik} = 1$ and untreated (i.e. a control)
+if $a_{ik} = 0$. Now for each unit $i$ (except for $k$) there are two potential outome $Y_i(1)$ if $a_{ik} = 1$ and $Y_i(0)$ if $a_{ik} = 0$.
+This reduces the number of potential outcomes from $n \times 2^M$ to $2 \cdot (n-1)$ (discarding the influent unit $k$).
+
+**Estimand of Interest**
+
+Given this definition of treatment we are intersted in the _influential connection effect_ ($\Delta_k$)
+$$
+	\Delta_k = \mathbb{E}_{\mathcal{N}'}\left[Y_i(1) - Y_i(0)\right]
+$$
+where $\mathcal{N}' = \mathcal{N} \setminus \{k\}$, i.e. the set of all units excluding $k$. 
+
+Now we are in a setting similar to SUTVA. However, there are quite a few subtle differences. Firstly, its hard to see 
+what exactly is the population of interest. Since we are interested in effect of changing the network configuration,
+we should treat the given set of units as the _fixed_ population of interest. This is reflected by the subscript $\mathcal{N}'$
+in the expectation. This is a bigger issue, because it severly limits the generalizability of our inferences.
+
+Secondly, in the SUTVA setting, the treatment status for all the units are treated as independent of each other. This is clearly untenable in 
+this setting. In this case, the treatment is an edge in the network. The formation of an edge depends - at the very least - on the features of both nodes involved in the edge, and possibly on the entire network structure. Also, similar to the interference setting, the observed outcomes can also be correlated for units that share an edge, therefore the obsered outcomes are also not independent unlike in the SUTVA setting. 
+
+Due to these complexities, it is hard to describe the relationships between the variables $\mathbf{X}_i$ and $Y_i$ for the individual units using a DAG. However, there is a higher level relationship between the sets of variables. Define $\mathbf{X} = \{\mathbf{X}_1, \dots, \mathbf{X}_n\}$, $\mathbf{A} = \{a_{1k}, \dots , a_{nk} \}$ and $\mathbf{Y} = \{Y_1, \dots, Y_n\}$. Then we have the causal DAG shown in [Figure dag] at the network level:
+
+
+![Figure [dag]: Higher level DAG. Note that the DAG for individual level variables can be very complex](dag.png)
+
+This DAG implies that the baseline covariates for all units precedes the network formation $A$, and both the feature set and the network temporally precede the outcomes. 
+
+
+Open Questions
+--------------------------------------------------------------------------------
+- Note that we have not included $k$ in our estimand of interest, however the connections that 
+- How to model treatment probability? 
+- Does it suffice to use existing link prediction methods to model the propensity of treatment (defined as link-formation with the _influential unit_ $k$)
+
+<br>
+<br>
+
+
+**References**
+--------------------------------------------------------------------------------
+[#AS2017]: Aronow, P. M., & Samii, C. (2017). Estimating Average Causal Effects Under General Interference, with Application to a Social Network Experiment. The Annals of Applied Statistics, 11(4). https://doi.org/10.1214/16-AOAS1005
+
+[#TFS2021]: Tchetgen Tchetgen, E. J., Fulcher, I. R., & Shpitser, I. (2021). Auto-G-Computation of Causal Effects on a Network. Journal of the American Statistical Association, 116(534), 833–844. https://doi.org/10.1080/01621459.2020.1811098
+
+[#FMWA2018]: Forastiere, L., Mealli, F., Wu, A., & Airoldi, E. (2018). Estimating Causal Effects Under Interference Using Bayesian Generalized Propensity Scores (arXiv:1807.11038). arXiv. http://arxiv.org/abs/1807.11038
+
+[#OSDvdL2020]: Ogburn, E. L., Sofrygin, O., Diaz, I., & van der Laan, M. J. (2020). Causal inference for social network data (arXiv:1705.08527). arXiv. http://arxiv.org/abs/1705.08527
+
+<!-- 
+1.
+What question do you want to answer? And why is it important to answer it?
+ 	In this paperLinks to an external site., for example, we wanted to know whether it is better to admit or discharge a patient from the Emergency Department into an in-patient unit. It is important to assess these admission decisions, since getting the decision wrong can lead to avoidable harm and costs.  Alternatively, you might want to pursue a technical question, such as how can we extend do-calculus to analyze path-specific causal effects as in hereLinks to an external site.; such question is motivated by a desire to optimize sequential treatments decisions (e.g., if person does not response to Treatment A, should we then give them Treatment B?).
+ 	 
+2.
+What (observed or unobserved) random variables are needed to fully model the problem?
+ 	Here, for example, you might introduce a random variable A to model treatment decision for an individual, etc, etc.
+ 	 
+3.
+What is the causal effect that you wish to study?
+ 	Here, for example, you might mathematically define an average treatment effect as function of random variables, including potential outcomes, from your specified set of random variables. Other examples include complier average causal effects, average causal effects among the treated, population average treatment effects, average causal excursion/blip effects, average path-specific effects, average treatment effects that account for interference.   
+ 	 
+4.
+What are your working hypotheses about the relationship between variables?
+
+ 	This can be concisely accomplished with a DAG, along with justification for the assumed relationships in the DAG. However, a few problems might not be well captured by DAGs and need to be described in equations/words.
+
+
+ -->
+
+<script>markdeepOptions = {definitionStyle:'none', tocStyle:'none'}</script>
+<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style><script src="markdeep.min.js" charset="utf-8"></script><script src="https://casual-effects.com/markdeep/latest/markdeep.min.js?" charset="utf-8"></script><script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>
+
+
