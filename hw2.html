@@ -1,7 +1,7 @@
 <meta charset="utf-8" emacsmode="-*- markdown -*-"><style class="fallback">body{visibility:hidden;}</style><link rel="stylesheet" href="apidoc.css"><link rel="preconnect" href="https://fonts.gstatic.com"><link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet"><style>body{font-family: 'Lato', sans-serif}</style>
 <p style="text-align: left;">
-                        **Ajinkya Kokandakar**
-                        <span style="float:right;">[Home](index.html)
+						[Home](index.html)
+                        <span style="float:right;">[Next](hw3.html)
 </span>
 
 <H1 align="center"> **Causal Inference for Networks** </H1>
@@ -19,22 +19,29 @@
 Introduction
 ================================================================================
 The classical causal inference setting assumes that the units are independent of each other. The SUTVA assumption asserts that the potential outcome for a unit is a well defined function of the unit's own treatment, but not that of others. This precludes the possibility of the outcome (both potential and observed) for a unit being dependent on other unit's treatment status. Although this setting allows for studying a rich class of problems, it cannot model scenarios where the units have some sort of relationship with each other. The most common example for this is vaccines - other people being vaccinated reduces the risk of infection for each individual. 
-Causal inference for networks studies such problems. However, it focuses primarily on intereference - how one units treatment affects other units' potential oucomes _given a fixed network_. In this model of causal inference, the network acts similar to a confounder. I am interested in studying what would be the effect of changing the network between units itself. Instead of the network being a confounder what if the network is the treatment? What would be the outcome for each unit if we change the connections between the units? Suppose we have observed the social network in the left panel of Figure [counter], but we want to know what the outcome say income for each household under the alered social configuration in the right panel. My goal is to work out the theory for how we can estimate outcomes in the second configuration given covariate and observed outcome data in the first configuration.
+Causal inference for networks studies such problems. However, it focuses primarily on intereference - how one units treatment affects other units' potential oucomes _given a fixed network_. In this model of causal inference, the network acts similar to a confounder. We are interested in studying what would be the effect of changing the network between units itself. Instead of the network being a confounder what if the network is the treatment? What would be the outcome for each unit if we change the connections between the units? 
+
+Suppose we have observed the social network in the left panel of Figure [counter], but we want to know what the outcome say income for each household under the alered social configuration in the right panel. My goal is to work out the theory for how we can estimate outcomes in the second configuration given covariate and observed outcome data in the first configuration.
 
 ![Figure [counter]: Based on the observed network in the left panel, we want to infer the outcomes for the same units with a difference configuration in the right panel](Counterfactual_networks.png)
 
 
 Settings and Notation
 ================================================================================
-We have a set of $n$ units that are connected in a network, and thus form a node set denoted $\mathcal{N}$. Let $A$ be the observed adjacency matrix. Lowercase $a$ denotes a fixed (but potential) adjacency matrix. Let $a_{i\cdot}$ denotes the row of the adjacency matrix corresponding to node $i$ and $a_{ij} = 1$ if the nodes $i$ and $j$ are connected in the network that corresponds to the adjacency matrix $a$. Let $\mathscr{A}$ denote the set of all possible networks for the set of nodes $\mathcal{N}$.  For each unit $i = 1,2,3, \dots, n$,
-we observe covariates $\mathbf{X}_i$ and the outcome $Y_i$. We don't have a separate treatment variable because we are interested in the effect of chaning the adjecancy matrix. In the most general case, let $a$ and $a'$ denote two adjecancy matrices for the set of units, we can define potential outcomes $Y_i(a)$ and $Y_i(a')$ corresponding to the two network configurations and an effect of interest maybe :
+
+We have a set of $n$ units that are connected in a network, and thus form a node set denoted $\mathcal{N}$. Let $A$ be the observed adjacency matrix. Lowercase $a$ denotes a fixed (but potential) adjacency matrix. Let $a_{i\cdot}$ denotes the row of the adjacency matrix corresponding to node $i$ and $a_{ij} = 1$ if the nodes $i$ and $j$ are connected in the network that corresponds to the adjacency matrix $a$. Let $\mathscr{A}$ denote the set of all possible networks for the set of nodes $\mathcal{N}$.  
+For each unit $i = 1,2,3, \dots, n$,
+we observe covariates $\mathbf{X}_i$ and the outcome $Y_i$. We don't have a separate treatment variable because we are interested in the effect of chaning the adjecancy matrix. 
+
+**Defining the potential outcomes**
+
+In the most general case, let $a$ and $a'$ denote two adjecancy matrices for the set of units, we can define potential outcomes $Y_i(a)$ and $Y_i(a')$ corresponding to the two network configurations and an effect of interest maybe :
 $$
 	Y(a) - Y(a') \quad a, a \in \mathscr{A}.
 $$
 This hints at an important departure from the SUTVA model. The potential outcomes are indexed by an adjecancy matrix $a$ (or $a'$) _not_ by a scalar.
-There are $M = 2^\binom{n}{2}$ possible adjecancy matrix, which means there are $M$ different potential outomes $Y_i(a)$ for each unit $i$. 
-Following the potential outcomes framework, we posit that there exist potential outcomes $Y_i(a)$ for each (potential) adjacency matrix $a$. Therefore, without any further restrictions there are $n \cdot 2^{M}$ total potential outcomes for the entire network. However, we only observe the realized outcome for each unit, i.e. we only observe $n$ outcomes. In contrast, in the classical causal inference setting with i.i.d. units, there are $2n$ potential outcomes of which we observe $n$. Moreover, in the general interference setting where the treatments are applied to the units, we have $n \cdot 2^n$ potential outcomes, which is much smaller than in the setting we consider here. Without any further assumptions restricting the number of potential outcomes, it is not possible to perform causal inference.
-
+There are $M = 2^\binom{n}{2}$ possible adjecancy matrices, which means there are $M$ different potential outomes $Y_i(a)$ for each unit $i$. 
+Following the potential outcomes framework, we posit that there exist potential outcomes $Y_i(a)$ for each (potential) adjacency matrix $a$. Therefore, without any further restrictions there are $n \cdot 2^{M}$ total potential outcomes for the entire network. However, we only observe the realized outcome for each unit, i.e. we only observe $n$ outcomes. In contrast, in the classical causal inference setting with i.i.d. units, there are $2n$ potential outcomes of which we observe $n$. Moreover, in the general interference setting [#HudHal2008] where the treatments are applied to the units, we have $n \cdot 2^n$ potential outcomes, which is much smaller than in the setting we r here. Without any further assumptions restricting the number of potential outcomes, it is not possible to perform causal inference.
 
 Setting | No. of potential outcomes | No. of observed outcomes 
 ----|:----:|:----:
@@ -51,22 +58,22 @@ In the current _interference_ literature, there are in effect three strategies t
 Refining the problem
 --------------------------------------------------------------------------------
 Since the general problem is intractable, we take a different approach where we 
-focus on exposure of a different kind. We conside the exosure:
+focus on exposure of a different kind. We consider the following exposure: designate a pre-specified unit as an _influential unit_, and define being retaed as being connected to this influential unit. Then we consider the following question:
 
-> "Is a unit connected to a pre-specified unit in the network? What is the effect of being connected to a pre-specified unit?"
+> "What is the effect of being connected to an _influential_ unit?"
 
-This is motivated by frequent observation in network statistics relating to the degree distribution of a social network. 
+This is motivated by the frequent observation in network statistics relating to the degree distribution of a social network. 
 Briefly, research has noted that there are a few _influential units_ which have a high degree i.e. high number of neighbors, 
 alongwith many other units that usually have a low degree.
 
-With this definition of exosure, a unit is considered to be treated if it is connected to the influential unit. To fix ideas,
-let the $k$ denote the influential unit, then we consider the unit $i$ to be treated if $a_{ik} = 1$ and untreated (i.e. a control)
-if $a_{ik} = 0$. Now for each unit $i$ (except for $k$) there are two potential outome $Y_i(1)$ if $a_{ik} = 1$ and $Y_i(0)$ if $a_{ik} = 0$.
+With this definition of exposure, a unit is considered to be treated if it is connected to the influential unit. To fix ideas,
+let the $k$ denote the influential unit, then we consider the unit $i$ to be treated if $A_{ik} = 1$ and untreated (i.e. a control)
+if $A_{ik} = 0$. Now for each unit $i$ (except for $k$) there are two potential outome $Y_i(1)$ if $a_{ik} = 1$ and $Y_i(0)$ if $a_{ik} = 0$ (Recall that small $a$ denotes a potential adjecancy matrix). 
 This reduces the number of potential outcomes from $n \times 2^M$ to $2 \cdot (n-1)$ (discarding the influent unit $k$).
 
 **Estimand of Interest**
 
-Given this definition of treatment we are intersted in the _influential connection effect_ ($\Delta_k$)
+Given this definition of treatment we are intersted in the _influential connection effect_ ($\Delta_k$) 
 $$
 	\Delta_k = \mathbb{E}_{\mathcal{N}'}\left[Y_i(1) - Y_i(0)\right]
 $$
@@ -78,35 +85,38 @@ we should treat the given set of units as the _fixed_ population of interest. Th
 in the expectation. This is a bigger issue, because it severly limits the generalizability of our inferences.
 
 Secondly, in the SUTVA setting, the treatment status for all the units are treated as independent of each other. This is clearly untenable in 
-this setting. In this case, the treatment is an edge in the network. The formation of an edge depends - at the very least - on the features of both nodes involved in the edge, and possibly on the entire network structure. Also, similar to the interference setting, the observed outcomes can also be correlated for units that share an edge, therefore the obsered outcomes are also not independent unlike in the SUTVA setting. 
+this setting. In this case, the treatment is an edge in the network. The formation of an edge depends - at the very least - on the features of both nodes involved in the edge, and possibly on the entire network structure. Also, similar to the interference setting, the observed outcomes can also be correlated for units that share an edge, therefore the observed outcomes are also not independent unlike in the SUTVA setting. 
 
-Due to these complexities, it is hard to describe the relationships between the variables $\mathbf{X}_i$ and $Y_i$ for the individual units using a DAG. However, there is a higher level relationship between the sets of variables. Define $\mathbf{X} = \{\mathbf{X}_1, \dots, \mathbf{X}_n\}$, $\mathbf{A} = \{a_{1k}, \dots , a_{nk} \}$ and $\mathbf{Y} = \{Y_1, \dots, Y_n\}$. Then we have the causal DAG shown in [Figure dag] at the network level:
+Due to these subtle differences, we cannot use the regular propensity score or matching methods to compute the estimand of interest. One thing that we need to consider is the "entangled treatments" regime described in [#TVA2018]. In this work, they describe the behavior of propensity score methods when treatment status of units are allowed to be statistically dependent. We would have to consider how the entangled treatments regime can be applied or modified for our problem.
+
+Moreover, it is hard to describe the relationships between the variables $\mathbf{X}_i$ and $Y_i$ for the individual units using a DAG. However, there is a higher level relationship between the sets of variables. Define $\mathbf{X} = \{\mathbf{X}_1, \dots, \mathbf{X}_n\}$, $\mathbf{A} = \{a_{1k}, \dots , a_{nk} \}$ and $\mathbf{Y} = \{Y_1, \dots, Y_n\}$. Then we have the causal DAG shown in [Figure [dag]] at the network level:
 
 
-![Figure [dag]: Higher level DAG. Note that the DAG for individual level variables can be very complex](dag.png)
+![Figure [dag]: Network level DAG. $\mathbf{X}$ denotes the collection of feature vectors for all units, $\mathbf{A}$ denotes the vector of exposure variables as defined before, and $\mathbf{Y}$ denotes the vector of outcomes for all units (discarding the influential unit). Note that the DAG for individual level variables can be very complex.](dag.png)
 
 This DAG implies that the baseline covariates for all units precedes the network formation $A$, and both the feature set and the network temporally precede the outcomes. 
 
 
 Open Questions
 --------------------------------------------------------------------------------
-- Note that we have not included $k$ in our estimand of interest, however the connections that 
-- How to model treatment probability? 
+- How do we model treatment probability? 
 - Does it suffice to use existing link prediction methods to model the propensity of treatment (defined as link-formation with the _influential unit_ $k$)
-
-<br>
-<br>
-
 
 **References**
 --------------------------------------------------------------------------------
-[#AS2017]: Aronow, P. M., & Samii, C. (2017). Estimating Average Causal Effects Under General Interference, with Application to a Social Network Experiment. The Annals of Applied Statistics, 11(4). https://doi.org/10.1214/16-AOAS1005
+[#AroSam2017]: Aronow, P. M., & Samii, C. (2017). Estimating Average Causal Effects Under General Interference, with Application to a Social Network Experiment. The Annals of Applied Statistics, 11(4). https://doi.org/10.1214/16-AOAS1005
 
 [#TFS2021]: Tchetgen Tchetgen, E. J., Fulcher, I. R., & Shpitser, I. (2021). Auto-G-Computation of Causal Effects on a Network. Journal of the American Statistical Association, 116(534), 833–844. https://doi.org/10.1080/01621459.2020.1811098
 
 [#FMWA2018]: Forastiere, L., Mealli, F., Wu, A., & Airoldi, E. (2018). Estimating Causal Effects Under Interference Using Bayesian Generalized Propensity Scores (arXiv:1807.11038). arXiv. http://arxiv.org/abs/1807.11038
 
 [#OSDvdL2020]: Ogburn, E. L., Sofrygin, O., Diaz, I., & van der Laan, M. J. (2020). Causal inference for social network data (arXiv:1705.08527). arXiv. http://arxiv.org/abs/1705.08527
+
+[#TVA2018]: Toulis, P., Volfovsky, A., & Airoldi, E. M. (2018). Propensity score methodology in the presence of network entanglement between treatments (arXiv:1801.07310). arXiv. http://arxiv.org/abs/1801.07310
+
+[#HudHal2008]: Hudgens, M. G., & Halloran, M. E. (2008). Toward Causal Inference With Interference. Journal of the American Statistical Association, 103(482), 832–842. https://doi.org/10.1198/016214508000000292
+
+
 
 <!-- 
 1.
