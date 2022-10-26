@@ -35,6 +35,24 @@ Identification
 
 In this section we posit causal assumptions and prove that the estimand of interest is indeed identified. 
 
+**Assumption**: 
+
+\[
+\begin{aligned}
+\mathbb{E}[Y_i(1) - Y_i(0)]
+	&= \mathbb{E}\left\{\mathbb{E}\left[Y_i(1) - Y_i(0) \mid \mathbf{X}\right] \right\} &&\text{(LIE)}\\[10pt]
+	&= \mathbb{E}\left\{
+		\mathbb{E}\left[Y_i(1) \mid \mathbf{X}\right] - \mathbb{E}\left[Y_i(0) \mid \mathbf{X}\right] 
+		\right\}\\[10pt]
+	&= \mathbb{E}\left\{
+		\mathbb{E}\left[Y_i(1) \mid \mathbf{X}, A_i = 1\right] - \mathbb{E}\left[Y_i(0) \mid \mathbf{X}, A = 0\right] 
+		\right\}\\[10pt]
+	&= \mathbb{E}\left\{
+		\mathbb{E}\left[Y_i \mid \mathbf{X}, A_i = 1\right] - \mathbb{E}\left[Y_i \mid \mathbf{X}, A = 0\right] 
+		\right\}\\
+\end{aligned}
+\]
+
 
 <script>markdeepOptions = {definitionStyle:'none', tocStyle:'none'}</script>
 <!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style><script src="markdeep.min.js" charset="utf-8"></script><script src="https://casual-effects.com/markdeep/latest/markdeep.min.js?" charset="utf-8"></script><script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>
