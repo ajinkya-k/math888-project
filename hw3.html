@@ -1,8 +1,8 @@
 <meta charset="utf-8" emacsmode="-*- markdown -*-"><style class="fallback">body{visibility:hidden;}</style><link rel="stylesheet" href="apidoc.css"><link rel="preconnect" href="https://fonts.gstatic.com"><link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet"><style>body{font-family: 'Lato', sans-serif}</style>
 <p style="text-align: left;">
-						[Prev](hw2.html)
+						[Prev](hw2.html) |
 						<span style="text-align:center;">[Home](index.html)</span>
-                        <span style="float:right;">[Next](hw3.html)
+                        <span style="float:right;">[Next](hw4.html)
 </span>
 
 <H1 align="center"> **Causal Inference for Networks** </H1>
@@ -11,9 +11,30 @@
 
 **Sections**
 
+Problem Review
+================================================================================
+
+In the [previous section](hw2.html) we discussed the problem setting. 
+Briefly, we are interested in estimating the causal effect of being connected to 
+a pre-specified unit in a social network. In response to the confusion caused due to 
+the use of the term "influential unit" I renamed the term to "focal unit" instead for clarity of exposition.
+The choice of focal node can be completely arbitrary and does not have to depend on any of the covariates
+or the network structure recorded in the observations. 
+
+To review, we observe covariates $\mathbf{X}_i$, outcome $Y_i$ for units $i = 1,2, \dots, n$, and a 
+network $\mathcal{N}$ among the units. We fix a _focal unit_ indexed by $k$, and for each $i \neq k$,
+we define $A_i = 1$ if units $i$ and $k$ are connected in the network $\mathcal{N}$ and $A_i = 0$
+if the units $i$ and $k$ are not connected. We want to estimate:
+$$
+	\Delta_k = \mathbb{E}_{\mathcal{N}'}\left[Y_i(1) - Y_i(0)\right]
+$$
+where $\mathcal{N}' = \mathcal{N} \setminus \{k\}$, i.e. the set of all units excluding $k$. 
+
 Identification
 ================================================================================
-Nothing here yet
+
+In this section we posit causal assumptions and prove that the estimand of interest is indeed identified. 
+
 
 <script>markdeepOptions = {definitionStyle:'none', tocStyle:'none'}</script>
 <!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style><script src="markdeep.min.js" charset="utf-8"></script><script src="https://casual-effects.com/markdeep/latest/markdeep.min.js?" charset="utf-8"></script><script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>
