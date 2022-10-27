@@ -111,7 +111,16 @@ $$
 
 Therefore, the estimation stage of the project is going to be more challenging than the identification, which we have proved here. 
 More specifically, we cannot use the regular propensity score based models because they assumed that the exposure assignments are 
-conditionally i.i.d. 
+conditionally i.i.d. We need to specify a joint model for the exposures: $\mathbf{P}(A_1, A_2, \dots, A_{k-1}, A_{k+1}, \dots, A_n \mid \mathbf{X}, \mathcal{N}')$. The easiest way to start would be to start with the following decomposition: 
+$$
+	\begin{aligned}
+	&\mathbf{P}(A_1, A_2, \dots, A_{k-1}, A_{k+1}, \dots, A_n \mid \mathbf{X}, \mathcal{N}')\\
+		&\quad = \mathbf{P}(A_1\mid \mathbf{X}, \mathcal{N}') \cdot \mathbf{P}(A_2, \dots, A_{k-1}, A_{k+1}, \dots, A_n \mid \mathbf{X}, \mathcal{N}', A_1)\\
+		&\quad = \prod_{i \neq k}\mathbf{P}(A_i\mid \mathbf{X}, \mathcal{N}') \cdot \mathbf{P}(A_2, \dots, A_{k-1}, A_{k+1}, \dots, A_n \mid \mathbf{X}, \mathcal{N}', A_1, A_2, \dots, A_{i-1})\\
+	\end{aligned}
+$$
+
+This decomposition can be interpreted as a sequential process in which the non-focal nodes are offered the opportunity to form a connection with the focal node one after the other and the probability of the $i^{th}$ unit forming a connection (i.e. being exposed) depends on the exposure of the previous units. This will be explored in detail in the estimation section of the project.
 
 <script>markdeepOptions = {definitionStyle:'none', tocStyle:'none'}</script>
 <!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style><script src="markdeep.min.js" charset="utf-8"></script><script src="https://casual-effects.com/markdeep/latest/markdeep.min.js?" charset="utf-8"></script><script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>
