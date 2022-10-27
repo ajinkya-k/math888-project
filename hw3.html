@@ -11,6 +11,12 @@
 
 **Sections**
 
+- [Problem Review](#problemreview)
+- [Causal Identification](#causalidentification)
+- [Other Identification Issues](#otheridentificationissues)
+
+**NOTE:** We use treatment and exposure interchangeably in this section.
+
 Problem Review
 ================================================================================
 
@@ -30,29 +36,82 @@ $$
 $$
 where $\mathcal{N}' = \mathcal{N} \setminus \{k\}$, i.e. the set of all units excluding $k$. 
 
-Identification
+Causal Identification
 ================================================================================
 
 In this section we posit causal assumptions and prove that the estimand of interest is indeed identified. 
+As noted before let $\mathbf{X} = (\mathbf{X}_1, \mathbf{X}_2, \dots, \mathbf{X}_n)$ denote the collection of covariates for all the nodes (including the focal node), let $Y_i(1)$ and $Y_i(0)$ denote the potential outcomes if unit $i$ were exposed and not exposed respectively. 
 
-**Assumption**: 
+As stated in the previous section, we assume that the baseline covariates for the nodes temporally precede network formation. 
+Next, based on the baseline covariates the non-focal nodes form the network $\mathcal{N}'$. Finally, the connections to the focal node depends on the baseline covariates and the extant network $\mathcal{N}'$ among the non-focal nodes. Finally, the observed outcome is selected based on the exposure. The causal identification is based on the version of conditional ignorability stated in this section.
 
+![Figure [dag]: Network level DAG. $\mathbf{X}$ denotes the collection of feature vectors for all units, $\mathbf{A}$ denotes the vector of exposure variables as defined before, and $\mathbf{Y}$ denotes the vector of outcomes for all units (discarding the influential unit). Note that the DAG for individual level variables can be very complex.](dag2.png)
+
+I am not really sure about the arrow from the non-focal nodes network ($\mathcal{N}'$) to the outcome, but I do not want to preclude the possibility.
+
+The assumptions in the causal graph can be encoded as follows:
+
+**Assumption (Network Conditional Ignorability, NCI):**
+Conditional on the covariates for all the nodes and the observed network among the non-focal nodes, the potential outcomes
+for each unit are independent of their own exposure, i.e.:
+$$
+	\{ Y_i(1), Y_i(0) \} \perp\kern{-6pt}\perp A_i \ \mid \ \mathbf{X},\; \mathcal{N}'
+$$
+
+In addition to ignorability we need the following assumptions:
+
+**Assumption (Consistency, C):**
+The observed outcome is equal to the potential outcome under the observed exposure. Formally:
+$$
+	Y_i = Y_i(A_i) = A_i \cdot Y_i(1) + (1 - A_i) \cdot Y_i(0) \ .
+$$
+
+
+**Assumption (Positivity, P):**
+Each unit has a non-zero change of being exposed, as well as a non-zero chance of not being exposed i.e.: 
+$$
+	0 < \mathbf{P}(A_i = 1 \mid \mathbf{X}, \mathcal{N}') < 1, \quad \text{for all } i \in \{1,2, \dots, n\} \setminus \{k\} . 
+$$
+
+Under these assumptions, we can prove the following identification result:
 \[
-\begin{aligned}
-\mathbb{E}[Y_i(1) - Y_i(0)]
-	&= \mathbb{E}\left\{\mathbb{E}\left[Y_i(1) - Y_i(0) \mid \mathbf{X}\right] \right\} &&\text{(LIE)}\\[10pt]
-	&= \mathbb{E}\left\{
-		\mathbb{E}\left[Y_i(1) \mid \mathbf{X}\right] - \mathbb{E}\left[Y_i(0) \mid \mathbf{X}\right] 
-		\right\}\\[10pt]
-	&= \mathbb{E}\left\{
-		\mathbb{E}\left[Y_i(1) \mid \mathbf{X}, A_i = 1\right] - \mathbb{E}\left[Y_i(0) \mid \mathbf{X}, A = 0\right] 
-		\right\}\\[10pt]
-	&= \mathbb{E}\left\{
-		\mathbb{E}\left[Y_i \mid \mathbf{X}, A_i = 1\right] - \mathbb{E}\left[Y_i \mid \mathbf{X}, A = 0\right] 
-		\right\}\\
-\end{aligned}
+	\begin{aligned}
+	\mathbb{E}[Y_i(1) - Y_i(0)]
+		&= \mathbb{E}\left\{\mathbb{E}\left[Y_i(1) - Y_i(0) \mid \mathbf{X}, \mathcal{N}'\right] \right\} &&\text{(LIE)}\\[10pt]
+		&= \mathbb{E}\left\{
+			\mathbb{E}\left[Y_i(1) \mid \mathbf{X}, \mathcal{N}'\right] - \mathbb{E}\left[Y_i(0) \mid \mathbf{X}, \mathcal{N}'\right] 
+			\right\}\\[10pt]
+		&= \mathbb{E}\left\{
+			\mathbb{E}\left[Y_i(1) \mid \mathbf{X}, \mathcal{N}', A_i = 1\right] - \mathbb{E}\left[Y_i(0) \mid \mathbf{X}, \mathcal{N}', A = 0\right] 
+			\right\} &&\text{(NCI, P)}\\[10pt]
+		&= \mathbb{E}\left\{
+			\mathbb{E}\left[Y_i \mid \mathbf{X}, \mathcal{N}', A_i = 1\right] - \mathbb{E}\left[Y_i \mid \mathbf{X}, \mathcal{N}', A = 0\right] 
+			\right\} &&\text{(C)}
+	\end{aligned}
 \]
 
+Since we only observe the one available social network, my guess is that we are already conditioning on the network, therefore it maybe possible to drop the conditioning on the network in the above equation. Note that this identification proof is an application of the backdoor adjustment principle. In fact, conditional ignorability is the algebraic formalization of the backdoor criterion.
+
+
+Other identification issues
+================================================================================
+
+The key difference in the SUTVA setting and our setting here is the treatment assignement mechanism. 
+The classical causal inference model assumes that the treatment assignment mechanism is individualistic
+in the following sense: $A_1, A_2, \dots, A_n$ are independent conditional on the observed covariates. 
+This enables us to use a model for learning $\mathbb{P}(A_i = 1 \mid \mathbf{X}_i)$. 
+
+This does not hold in our setting because the exposure is the formation of the network edge between 
+each non-focal node and the focal node. We cannot assume that for two neighbors say $i$ and $j$
+the forming of edge $(i,k)$ and edge $(j,k)$ are independent even after conditioning on their baseline covariates. 
+That is:
+$$
+	A_i \; \not\perp\kern{-9pt}\perp A_j \mid \mathbf{X}, \quad \text{for any pair } i,j . 
+$$
+
+Therefore, the estimation stage of the project is going to be more challenging than the identification, which we have proved here. 
+More specifically, we cannot use the regular propensity score based models because they assumed that the exposure assignments are 
+conditionally i.i.d. 
 
 <script>markdeepOptions = {definitionStyle:'none', tocStyle:'none'}</script>
 <!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style><script src="markdeep.min.js" charset="utf-8"></script><script src="https://casual-effects.com/markdeep/latest/markdeep.min.js?" charset="utf-8"></script><script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>
