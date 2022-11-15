@@ -1,1 +1,145 @@
-Nothing here yet
+<meta charset="utf-8" emacsmode="-*- markdown -*-"><style class="fallback">body{visibility:hidden;}</style><link rel="stylesheet" href="apidoc.css"><link rel="preconnect" href="https://fonts.gstatic.com"><link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet"><style>body{font-family: 'Lato', sans-serif}</style>
+<p style="text-align: left;">
+                        [Prev](hw3.html) |
+                        <span style="text-align:center;">[Home](index.html)</span>
+                        <span style="float:right;">[Next](hw5.html)
+</span>
+
+<H1 align="center"> **Causal Inference for Networks** </H1>
+
+<p align="center">Ajinkya Kokandakar</p>
+
+**Sections**
+
+- [The Problem at Hand](#the-problem-at-hand)
+- [Deriving an IPTW estimator](#deriving-an-iptw-estimator)
+- [Computing the Propensity score](#computing-the-propensity-score)
+- [Estimation Procedure](#estimation-procedure)
+- [References](#references)
+
+
+The Problem at Hand
+=========================================
+
+Figure [focal_node_graph] shows the problem we want to consider. The network between the nodes 1 -- 4 is already observed (call it $\mathcal{N}'$). 
+We also observe $A_i \in \{0,1\}$ for each $i$, and we want to model the probability distribution: 
+$$
+    \mathbb{P}(A_1, A_2, \dots, A_{k-1}, A_{k+1}, \dots, A_n \mid \mathbf{X}, \mathcal{N}') \ ,
+$$
+and observe an outcome variable $Y_i$ for each outcome and baseline covariates $\matbf{X}_i$ for each node. Finally denote $\matbhf{X} =\{\matbhf{X}_1, \dots , \matbhf{X}_n\}$.
+
+![Figure [focal_node_graph]: The solid edges show the extant network between the nodes of interest numbered 1 -- 4. The dashed lines represent the possibility of a connection (i.e. exposure) between node $i$ and the focal node, operationalized by the exposure indicator $A_i$](focal_node_graph.jpeg =100x)
+
+We propose using inverse propensity weighting estimator to compute the estimand of interest.
+Thus we need to:
+
+(a) write the estimand with propensity score weights;
+<br>
+(b) computing the propensity score.
+
+In this section, we impose assumptions on the aforementioned probability distribution to make the estimation tractable.
+Briefly, if we assume that the $A_{i}$ depends only on the baseline covariates of the $i^{th}$ (i.e. $\mathbf{X}_i$) and the focal node (i.e. $\mathbf{X}_k$), then we can show that the setting is equivalent to the SUTVA setting.
+Therefore, we consider a weaker assumption, which can be termed "sequential attachment".
+
+Deriving an IPTW estimator
+===============================
+
+Before we derive the IPTW estimator, we first need to define the network-based propensity score given by the following equation: 
+$$
+    \pi_i(\mathbf{x}) = \mathbb{P}(A_i = 1 \mid \mathbf{X}, \mathcal{N}') \ .
+$$
+As mentioned before the first step is to derive and IPTW estimator by showing the following:
+$$
+    \mathbb{E}[Y_i(1)] = \mathbb{E}\Bigg[ Y_i \times \frac{\mathbb{I}[A_i = 1]}{\pi_i(\mathbf{X})}\Bigg] \quad
+\text{and} \quad
+    \mathbb{E}[Y_i(0)] = \mathbb{E}\Bigg[ Y_i \times \frac{\mathbb{I}[A_i = 0]}{1 - \pi_i(\mathbf{X})}\Bigg]\ .
+$$
+
+We prove the first one and the second one follows by a similar proof.
+
+$$
+    \begin{aligned}
+    \mathbb{E}\Bigg[ Y_i \times \frac{\mathbb{I}[A_i = 1]}{\pi(\mathbf{X})}\Bigg]
+        &= \mathbb{E}\Bigg[ Y_i(1) \times \frac{\mathbb{I}[A_i = 1]}{\pi(\mathbf{X})}\Bigg] &(\text{C})\\[10pt]
+        &= \mathbb{E}\Bigg[ \mathbb{E} \left\{ Y_i(1) \times \frac{\mathbb{I}[A_i = 1]}{\pi(\mathbf{X})}\; \Bigg\vert \;	 \mathbf{X}, \mathcal{N}' \right\} \Bigg] &(\text{LIE})\\[10pt]
+        &= \mathbb{E}\Bigg[
+            \mathbb{E}\left\{ Y_i(1) \times \mathbb{I}[A_i = 1]\ \Bigg\vert	 \mathbf{X}, \mathcal{N}' \right\} \times \frac{1}{\pi(\mathbf{X})} \Bigg] \\[10pt]
+        &= \mathbb{E}\Bigg[
+        \mathbb{E}\left\{ Y_i(1) \ \Bigg\vert\ \mathbf{X}, \mathcal{N}' \right\} \times \mathbb{E}\left\{ \mathbb{I}[A_i = 1]\ \Bigg\vert	 \mathbf{X}, \mathcal{N}' \right\} \times \frac{1}{\pi(\mathbf{X})} \Bigg] &(\text{NCI})\\[10pt]
+        &= \mathbb{E}\Bigg[
+        \mathbb{E}\left\{ Y_i(1) \ \Bigg\vert\ \mathbf{X}, \mathcal{N}' \right\} \times  \frac{\pi(\mathbf{X})}{\pi(\mathbf{X})} \Bigg] &(\text{definition of PS})\\[10pt]
+        &= \mathbb{E}\left[ Y_i(1)\right] &(\text{LIE in reverse})
+    \end{aligned}
+$$
+
+The proof for $\mathbb{E}[Y_i(0)]$ proceeds similarly, and uses the fact that $\mathbb{I}[A_i = 0] = 1 - \mathbb{I}[A_i = 1]$.
+
+Computing the Propensity score
+=================================
+
+We now need to make assumptions on the probability model:
+$$
+    \mathbb{P}(A_1, A_2, \dots, A_{k-1}, A_{k+1}, \dots, A_n \mid \mathbf{X}, \mathcal{N}') \ .
+$$
+
+We simplify the model by assuming that conditional on the baseline features for _all_ nodes, the exposures are independent i.e.: 
+$$
+    \mathbb{P}(A_1, A_2, \dots, A_{k-1}, A_{k+1}, \dots, A_n \mid \mathbf{X}, \mathcal{N}')
+    = \prod_{i \neq k}\mathbb{P}(A_i \mid \mathbf{X}, \mathcal{N}') \ .
+$$
+
+Note that this _does not_ rule out the possibility that node $i$'s exposure is affected by other nodes' baseline covariates.
+In other words, $A_i$ could still depend on $\{\mathbf{X}_j\}_{j \neq i,k}$.
+Therefore, this setting still differs from SUTVA.
+If we further assume that $A_i \perp\kern{-6pt}\perp \mathbf{X}_{-\{i,k\}} \mid \mathbf{X}_i, \mathbf{X}_k$, then the setting would become SUTVA. In that, we basically assume that $A_i$ only depends on the baseline features of the $i^{th}$ node and the focal node.
+A random dot-product graph would be an example of such a scenario in which SUTVA would indeed hold, despite the presence of a network, assuming we are interested in the effect of being connected to a focal node.
+
+We make one more simplification which we will relax in later sections to distill the effect of graphs, we assume that propensity of exposure depends on the network only through the structure of the network i.e. the network still influences the treatment assignment, but neighbors' covariates don't. This is a subtle difference, and the most common example is similarity of outcomes in spatially collocated nodes. This additional assumption allows us to use a version of the `network_BART` method in the `flexBART` [package](https://github.com/skdeshpande91/flexBART) to model the propensity score function [#Deshpande2022].
+
+Briefly, network BART -- like regular BART -- forms estimates for the predicted variable using the baseline covariates using a sum of trees. Each tree partitions the dataset into mutually exclusive groups and assigns a fixed value for the predicted variable per group.
+Network BART extend regular BART by allowing the dataset partitions to respect the network structure.
+It does so by generating a _uniform spanning tree_ on the network, and then deleting an edge to partition the nodes into two clusters. The current version of `network_BART` only works for continuous valued outcome, but we want to use this procedure to learn the propensity of exposure for each node. This will entail extending the network partitioning functionality to the probit-BART procedure laid out in [#Deshpande2022].
+
+# Estimation Procedure
+
+Under the assumptions made so far, we have the following estimation procedure: 
+
+- **Step 1**: Compute the network-based propensity score $\pi_i(\mathbf{X}_i, \mathcal{N}')$ using `network_probit_BART` <br>
+- **Step 2**: Use the propensity score estimates $\hat{\pi}_i$ in the IPTW estimator:
+    $$
+        \hat{\Delta} \quad = \quad \left(\frac{1}{n_1} \cdot \sum_{i : A_i = 1}  \frac{Y_i}{\hat{\pi}_i}\right)\ - \ \left(\frac{1}{n_0} \cdot \sum_{i : A_i = 0}  \frac{Y_i}{1 - \hat{\pi}_i}\right) \ ,
+    $$
+    where $n_1$ is the number of exposed units and $n_0$ are the number of control units.
+
+
+# References 
+
+[#Deshpande2022]: Deshpande, S.K., (2022). A new BART prior for flexible modeling with categorical predictors. _arXiv:[2211.04459](https://arxiv.org/abs/)_
+[[#Deshpande (2022)]]: Deshpande, S.K., (2022). A new BART prior for flexible modeling with categorical predictors. _arXiv:[2211.04459](https://arxiv.org/abs/)_
+
+
+<!--
+Sequential Attachment Model
+=====================================
+
+In this model, the units are numbered $1, 2, \dots, n$ (excluding the focal unit $k$ of course), and each is offered the opportunity to form a connection with the focal node $k$. For each unit $i$, the probability of being exposed (i.e. $A_i = 1$) depends on the the exposure for previous units i.e. depeds on $A_1, A_2, \dots, A_{i-1}$. The sequential attahment model is motivated by the probability decomposition given in the following equation:
+$$
+    \begin{aligned}
+    &\mathbb{P}(A_1, A_2, \dots, A_{k-1}, A_{k+1}, \dots, A_n \mid \mathbf{X}, \mathcal{N}')\\
+        &\quad = \mathbb{P}(A_1\mid \mathbf{X}, \mathcal{N}') \cdot \mathbb{P}(A_2, \dots, A_{k-1}, A_{k+1}, \dots, A_n \mid \mathbf{X}, \mathcal{N}', A_1)\\
+        &\quad = \prod_{i \neq k}\mathbb{P}(A_i\mid \mathbf{X}, \mathcal{N}') \cdot \mathbb{P}(A_2, \dots, A_{k-1}, A_{k+1}, \dots, A_n \mid \mathbf{X}, \mathcal{N}', A_1, A_2, \dots, A_{i-1})\\
+    \end{aligned}
+$$
+
+Note that this decomposition follows from the basic definition of conditional probability. We do assume that all events that we condition on are not zero probability events to rule out the possibility of ill-defined functions.
+Its important to point out that this model imposes restrictions on the forms of the conditional dependence between the exposure and baseline random variables.
+
+Now that we have constrained the probability model, we need to
+
+## Choice of order
+
+Note that the node order we specify can be consequential. In many applications, changing the order may affect the estimates. We will explore the sensitivity of the estimates to the order of nodes in the [next section](hw5.html).
+-->
+<!-- Markdeep: -->
+<script>markdeepOptions = {definitionStyle:'none', tocStyle:'none'}</script>
+<style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style><script src="markdeep.min.js" charset="utf-8"></script><script src="https://casual-effects.com/markdeep/latest/markdeep.min.js?" charset="utf-8"></script><script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>

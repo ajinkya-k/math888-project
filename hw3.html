@@ -70,7 +70,7 @@ $$
 **Assumption (Positivity, P):**
 Each unit has a non-zero change of being exposed, as well as a non-zero chance of not being exposed i.e.: 
 $$
-	0 < \mathbf{P}(A_i = 1 \mid \mathbf{X}, \mathcal{N}') < 1, \quad \text{for all } i \in \{1,2, \dots, n\} \setminus \{k\} . 
+	0 < \mathbb{P}(A_i = 1 \mid \mathbf{X}, \mathcal{N}') < 1, \quad \text{for all } i \in \{1,2, \dots, n\} \setminus \{k\} . 
 $$
 
 Under these assumptions, we can prove the following identification result:
@@ -111,12 +111,12 @@ $$
 
 Therefore, the estimation stage of the project is going to be more challenging than the identification, which we have proved here. 
 More specifically, we cannot use the regular propensity score based models because they assumed that the exposure assignments are 
-conditionally i.i.d. We need to specify a joint model for the exposures: $\mathbf{P}(A_1, A_2, \dots, A_{k-1}, A_{k+1}, \dots, A_n \mid \mathbf{X}, \mathcal{N}')$. The easiest way to start would be to start with the following decomposition: 
+conditionally i.i.d. We need to specify a joint model for the exposures: $\mathbb{P}(A_1, A_2, \dots, A_{k-1}, A_{k+1}, \dots, A_n \mid \mathbf{X}, \mathcal{N}')$. The easiest way to start would be to start with the following decomposition: 
 $$
 	\begin{aligned}
-	&\mathbf{P}(A_1, A_2, \dots, A_{k-1}, A_{k+1}, \dots, A_n \mid \mathbf{X}, \mathcal{N}')\\
-		&\quad = \mathbf{P}(A_1\mid \mathbf{X}, \mathcal{N}') \cdot \mathbf{P}(A_2, \dots, A_{k-1}, A_{k+1}, \dots, A_n \mid \mathbf{X}, \mathcal{N}', A_1)\\
-		&\quad = \prod_{i \neq k}\mathbf{P}(A_i\mid \mathbf{X}, \mathcal{N}') \cdot \mathbf{P}(A_2, \dots, A_{k-1}, A_{k+1}, \dots, A_n \mid \mathbf{X}, \mathcal{N}', A_1, A_2, \dots, A_{i-1})\\
+	&\mathbb{P}(A_1, A_2, \dots, A_{k-1}, A_{k+1}, \dots, A_n \mid \mathbf{X}, \mathcal{N}')\\
+		&\quad = \mathbb{P}(A_1\mid \mathbf{X}, \mathcal{N}') \cdot \mathbb{P}(A_2, \dots, A_{k-1}, A_{k+1}, \dots, A_n \mid \mathbf{X}, \mathcal{N}', A_1)\\
+		&\quad = \prod_{i \neq k}\mathbb{P}(A_i\mid \mathbf{X}, \mathcal{N}') \cdot \mathbb{P}(A_2, \dots, A_{k-1}, A_{k+1}, \dots, A_n \mid \mathbf{X}, \mathcal{N}', A_1, A_2, \dots, A_{i-1})\\
 	\end{aligned}
 $$
 
