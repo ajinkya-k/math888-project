@@ -15,6 +15,7 @@
 - [Deriving an IPTW estimator](#deriving-an-iptw-estimator)
 - [Computing the Propensity score](#computing-the-propensity-score)
 - [Estimation Procedure](#estimation-procedure)
+- [Next Steps and Future Work](#next-steps-and-future-work)
 - [References](#references)
 
 
@@ -94,11 +95,11 @@ Therefore, this setting still differs from SUTVA.
 If we further assume that $A_i \perp\kern{-6pt}\perp \mathbf{X}_{-\{i,k\}} \mid \mathbf{X}_i, \mathbf{X}_k$, then the setting would become SUTVA. In that, we basically assume that $A_i$ only depends on the baseline features of the $i^{th}$ node and the focal node.
 A random dot-product graph would be an example of such a scenario in which SUTVA would indeed hold, despite the presence of a network, assuming we are interested in the effect of being connected to a focal node.
 
-We make one more simplification which we will relax in later sections to distill the effect of graphs, we assume that propensity of exposure depends on the network only through the structure of the network i.e. the network still influences the treatment assignment, but neighbors' covariates don't. This is a subtle difference, and the most common example is similarity of outcomes in spatially collocated nodes. This additional assumption allows us to use a version of the `network_BART` method in the `flexBART` [package](https://github.com/skdeshpande91/flexBART) to model the propensity score function [#Deshpande2022].
+We make one more simplification which we will relax in later sections to distill the effect of graphs, we assume that propensity of exposure depends on the network only through the structure of the network i.e. the network still influences the treatment assignment, but neighbors' covariates don't. This is a subtle difference, and the most common example is similarity of outcomes in spatially collocated nodes. This additional assumption allows us to use a version of the `network_BART` method in the `flexBART` [package](https://github.com/skdeshpande91/flexBART) to model the propensity score function [#1].
 
 Briefly, network BART -- like regular BART -- forms estimates for the predicted variable using the baseline covariates using a sum of trees. Each tree partitions the dataset into mutually exclusive groups and assigns a fixed value for the predicted variable per group.
 Network BART extend regular BART by allowing the dataset partitions to respect the network structure.
-It does so by generating a _uniform spanning tree_ on the network, and then deleting an edge to partition the nodes into two clusters. The current version of `network_BART` only works for continuous valued outcome, but we want to use this procedure to learn the propensity of exposure for each node. This will entail extending the network partitioning functionality to the probit-BART procedure laid out in [#Deshpande2022].
+It does so by generating a _uniform spanning tree_ on the network, and then deleting an edge to partition the nodes into two clusters. The current version of `network_BART` only works for continuous valued outcome, but we want to use this procedure to learn the propensity of exposure for each node. This will entail extending the network partitioning functionality to the probit-BART procedure laid out in [#1].
 
 # Estimation Procedure
 
@@ -111,10 +112,18 @@ Under the assumptions made so far, we have the following estimation procedure:
     $$
     where $n_1$ is the number of exposed units and $n_0$ are the number of control units.
 
+# Next Steps and Future Work
+
+We would like to explore an AIPW-like estimator as well as g-estimation procedure for this problem, but the proof would be quite involved owing to possible dependence between the nodes, and therefore defer this for future work. We would also like to consider Markov Random Field based estimators for joint modeling of the exposure function that would allow us to have dependence between the $A_i$'s even when we condition on the baseline covariates.
+
+
+In the more near term, we will attempt to quantify the bias incurred if we use a regular propensity score estimator that does not account for the network structure.
+In other words, we would like to see how well a SUTVA-based estimator does for a network-based setting.
+
 
 # References 
 
-[#Deshpande2022]: Deshpande, S.K., (2022). A new BART prior for flexible modeling with categorical predictors. _arXiv:[2211.04459](https://arxiv.org/abs/)_
+[#1]: Deshpande, S.K., (2022). A new BART prior for flexible modeling with categorical predictors. _arXiv:[2211.04459](https://arxiv.org/abs/)_
 [[#Deshpande (2022)]]: Deshpande, S.K., (2022). A new BART prior for flexible modeling with categorical predictors. _arXiv:[2211.04459](https://arxiv.org/abs/)_
 
 
