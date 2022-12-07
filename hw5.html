@@ -39,7 +39,7 @@ $$
 **Assumption (Positivity, P):**
 Each unit has a non-zero change of being exposed, as well as a non-zero chance of not being exposed i.e.: 
 $$
-	0 < \mathbb{P}(A_i = 1 \mid \mathbf{X}, \mathcal{N}') < 1, \quad \text{for all } i \in \{1,2, \dots, n\} \setminus \{k\} . 
+	0\ <\ \mathbb{P}(A_i = 1 \mid \mathbf{X}, \mathcal{N}')\ <\ 1, \quad \text{for all } i \in \{1,2, \dots, n\} \setminus \{k\} . 
 $$
 
 
@@ -116,6 +116,16 @@ At a very basic level, our assumption that the link formation only depends on th
 That is, the underlying DGP maybe such that treatment assignment depends on some unobserved features for the nodes in the extant network or some unobserved feature of the focal node only (or both).
 This is very similar to the Rosenbaum Sensitivity framework i.e. only the treatment assignment is confounded, but the unobserved feature does not affect the outcome.
 
+Following Rosenbaum sensitivity suppose that the true model is: 
+$$
+	\frac{\mathbb{E}[A_i = 1 \mid \mathbf{X}, \mathcal{N}', \mathbf{U}]}{1 - \mathbb{E}[A_i = 1 \mid \mathbf{X}, \mathcal{N}', \mathbf{U}]} = h_i(\mathbf{X}, \mathcal{N}') + \gamma \cdot v_i(\mathbf{X}, \mathcal{N}', \mathbf{U})
+$$
+
+Note that if we could measure the $U_i$'s we could have used a network version of `BCF` sampler described in [#2].
+This is only a slight modification of the `flexBART` sampler that I propose to use in estimation (see [#3] for more details).
+However, we don't know the $U_i$'s and so we essentially only work with the $h_i(\cdot)$.
+
+
 Recall that we try to estimate $\pi_i(\mathbf{X}_i, \mathcal{N}')$ in Step 1 of our [estimation procedure](hw4.html#estimationprocedure). 
 A major issue with the estimation procedure is that we assumed the network is measured correctly. 
 However, networks are rarely if ever measured perfectly. We have already discussed how this affects identification. 
@@ -127,6 +137,9 @@ I will address this in future work.
 
 [#1]: Shalizi, C. R., & Thomas, A. C. (2011). Homophily and Contagion Are Generically Confounded in Observational Social Network Studies. Sociological Methods & Research, 40(2), 211–239. https://doi.org/10.1177/0049124111404820
 
+[#2]: P. Richard Hahn, Jared S. Murray, Carlos M. Carvalho "Bayesian Regression Tree Models for Causal Inference: Regularization, Confounding, and Heterogeneous Effects (with Discussion)," Bayesian Analysis, Bayesian Anal. 15(3), 965-1056, (September 2020)
+
+[#3]: Deshpande, S.K. (2022+). "A new BART prior for flexible modeling with categorical predictors." arXiv preprint arXiv:2211.04459
 
 
 
