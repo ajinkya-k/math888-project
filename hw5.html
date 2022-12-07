@@ -13,15 +13,122 @@
 
 **Sections**
 
-- [Problem Review](#problemreview)
-- [Causal Identification](#causalidentification)
-- [Other Identification Issues](#otheridentificationissues)
-
-**NOTE:** We use treatment and exposure interchangeably in this section.
+- [Assumptions for identification](#assumptionsforidentification)
+- [Assumptions for estimation](#assumptionsforestimation)
 
 Sensitivity Analysis
 ========================
 
-Nothing here yet! 
+In this section, we investigate the assumptions we have made to enable identification and estimation.
+We restate the assumptions here and consider their necessity and implications.
+
+# Assumptions for identification
+
+Recall from the [identification analysis](hw3.html) that we need (a) consistency, (b) positivity and (c) network conditional ignorability to express the causal estimand in terms of functions observable random variables that can be estimated.
+We first consider the role of consistency and positivity.
+
+
+## Basic Assumptions
+
+**Assumption (Consistency, C):**
+The observed outcome is equal to the potential outcome under the observed exposure. Formally:
+$$
+	Y_i = Y_i(A_i) = A_i \cdot Y_i(1) + (1 - A_i) \cdot Y_i(0) \ .
+$$
+
+**Assumption (Positivity, P):**
+Each unit has a non-zero change of being exposed, as well as a non-zero chance of not being exposed i.e.: 
+$$
+	0 < \mathbb{P}(A_i = 1 \mid \mathbf{X}, \mathcal{N}') < 1, \quad \text{for all } i \in \{1,2, \dots, n\} \setminus \{k\} . 
+$$
+
+
+Both consistency and positivity are _untestable assumptions_ and our analysis cannot proceed without these. 
+In fact, we _may not_ be able to talk about causality from observational studies without consistency, while lack of positivity will cause overlap issues which we can get around by reframing the population of interest as the sub-population which does have overlap.
+Yet these assumptions are sometimes left unstated -- or only briefly mentioned in a throwaway line -- and the reader is simply expected to know that consistency and positivity lurk in the background.
+Conditional ignorability is another untestable assumption _necessary_ for our analysis i.e. we cannot hope to recover causality without some form of ignorability.
+
+Before we address ignorability, we need to scrutinize the most critical assumption -- the temporal ordering we assumed for the variables, encoded in the causal graph in Figure [dag] reproduced from the [problem definition](hw2.html).
+
+![Figure [dag]: Network level DAG. $\mathbf{X}$ denotes the collection of feature vectors for all units, $\mathbf{A}$ denotes the vector of exposure variables as defined before, and $\mathbf{Y}$ denotes the vector of outcomes for all units (discarding the influential unit). Note that the DAG for individual level variables can be very complex.](dag.png)
+
+Recall that we assumed the connections with the focal node are formed based on the values of the covariates. This is a very controversial assumption. 
+Briefly, it is not clear in social networks if the connection is formed because the two nodes are similar or if the nodes covariates are similar because they are connected.
+This is the homophily vs contagion problem. As discussed in [#1], in a social network setting its really hard to figure out which of the following is the case: 
+
+- homophily: are nodes connected _because_ they have similar characteristics, and because of similar characteristics have similar outcomes
+- contagion: is the network connection driving outcomes, regardless of similar characteristics
+
+Or as the title of [#1] puts it "homophily and contagion are generically confounded".
+If we are unwilling to make any assumptions we cannot attribute outcomes to connections.
+In order to make any headway in analyzing social network data, we have to make assumptions ruling out some of the mechanisms.
+Specifically, we ruled out node connections affecting baseline features by assuming that node connections are a function of baseline covariates and the reverse direction is not allowed. 
+If this assumption doesn't hold our causal claims are erroneous, but we can never know that.
+However, in specific settings we can argue why the causal directions we state in Figure [dag] are likely to hold.
+
+## Ignorability
+
+**Assumption (Network Conditional Ignorability, NCI):**
+Conditional on the covariates for all the nodes and the observed network among the non-focal nodes, the potential outcomes
+for each unit are independent of their own exposure, i.e.:
+$$
+	\{ Y_i(1), Y_i(0) \} \perp\kern{-6pt}\perp A_i \ \mid \ \mathbf{X},\; \mathcal{N}'
+$$
+
+There are multiple ways this assumption can fail:
+
+**1. Unobserved features of each unit:** 
+There is an unmeasured feature of each unit say $U_i$ that is required for ignorability to hold i.e. 
+$$\{ Y_i(1), Y_i(0) \} \perp\kern{-6pt}\perp A_i \ \mid \ \mathbf{X},\mathbf{U}, \mathcal{N}'.$$
+Thus it is possible that some unobserved feature of the nodes influence both the connections with the focal node and the outcomes. 
+We could quantify this sensitivity in a way similar to either the Rosenbaum framework, see [estimation section](#assumptionsforestimation).
+However, if we want to parametrize the effect of of the unobserved feature on the outcome, its not clear how we can use VanDerWeele's framework here. 
+
+**2. Unobserved network edges in the non-focal network:** 
+Although we fixed the set of nodes as the population of interest, it is possible that we mismeasured the network i.e. we failed to observe some of the edges among the non-focal node. 
+This is not a problem in our model because all of our analysis is conditional on the non-focal network. 
+But it does affect the interpretation of the causal effect. 
+The estimate of the causal effect is _only applicable_ for the network we did observe.
+However, mismeasuring the network can affect our estimates of the propensity score! See the [estimation section](#assumptionsforestimation).
+
+
+
+
+
+# Assumptions for estimation
+
+In full generality, there could be arbitrary dependence between the treatments for two nodes.
+We simplify the model by assuming that conditional on the baseline features for _all_ nodes, the exposures are independent i.e.: 
+$$
+    \mathbb{P}(A_1, A_2, \dots, A_{k-1}, A_{k+1}, \dots, A_n \mid \mathbf{X}, \mathcal{N}')
+    = \prod_{i \neq k}\mathbb{P}(A_i \mid \mathbf{X}, \mathcal{N}') \ .
+$$
+
+As we discussed previously, this _does not_ rule out the possibility that node $i$'s exposure is affected by other nodes' baseline covariates.
+In other words, $A_i$ could still depend on $\{\mathbf{X}_j\}_{j \neq i,k}$.
+Therefore, this setting still differs from SUTVA.
+If we further assume that $A_i \perp\kern{-6pt}\perp \mathbf{X}_{-\{i,k\}} \mid \mathbf{X}_i, \mathbf{X}_k$, then the setting would become SUTVA.
+
+
+## Sensitivity analysis for link prediction
+
+At a very basic level, our assumption that the link formation only depends on the observed covariates for each node and the focal node can fail.
+That is, the underlying DGP maybe such that treatment assignment depends on some unobserved features for the nodes in the extant network or some unobserved feature of the focal node only (or both).
+This is very similar to the Rosenbaum Sensitivity framework i.e. only the treatment assignment is confounded, but the unobserved feature does not affect the outcome.
+
+Recall that we try to estimate $\pi_i(\mathbf{X}_i, \mathcal{N}')$ in Step 1 of our [estimation procedure](hw4.html#estimationprocedure). 
+A major issue with the estimation procedure is that we assumed the network is measured correctly. 
+However, networks are rarely if ever measured perfectly. We have already discussed how this affects identification. 
+However, not observing the network correctly may also affect estimation in a network setting.
+Since, `flexBART` shares information across nodes, unobserved edges would affect the partitions that are generated by the networkBART sampler, incorrectly sharing information. 
+I will address this in future work. 
+
+## References
+
+[#1]: Shalizi, C. R., & Thomas, A. C. (2011). Homophily and Contagion Are Generically Confounded in Observational Social Network Studies. Sociological Methods & Research, 40(2), 211–239. https://doi.org/10.1177/0049124111404820
+
+
+
+
 <script>markdeepOptions = {definitionStyle:'none', tocStyle:'none'}</script>
 <!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style><script src="markdeep.min.js" charset="utf-8"></script><script src="https://casual-effects.com/markdeep/latest/markdeep.min.js?" charset="utf-8"></script><script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>
