@@ -33,13 +33,16 @@ We first consider the role of consistency and positivity.
 **Assumption (Consistency, C):**
 The observed outcome is equal to the potential outcome under the observed exposure. Formally:
 $$
-	Y_i = Y_i(A_i) = A_i \cdot Y_i(1) + (1 - A_i) \cdot Y_i(0) \ .
+	Y_i = Y_i(A_i) =\begin{cases}
+		1, & \text{if } A_i = 1\\
+		0, & \text{if } A_i = 0
+	\end{cases} \quad .
 $$
 
 **Assumption (Positivity, P):**
 Each unit has a non-zero change of being exposed, as well as a non-zero chance of not being exposed i.e.: 
 $$
-	0\ <\ \mathbb{P}(A_i = 1 \mid \mathbf{X}, \mathcal{N}')\ <\ 1, \quad \text{for all } i \in \{1,2, \dots, n\} \setminus \{k\} . 
+	0\ <\ \mathbb{P}(A_i = 1 \mid \mathbf{X}, \mathcal{N}')\ <\ 1, \ \ \text{for all}\ \ i \in \{1,2, \dots, n\} \setminus \{k\} . 
 $$
 
 
@@ -81,7 +84,7 @@ There are multiple ways this assumption can fail:
 There is an unmeasured feature of each unit say $U_i$ that is required for ignorability to hold i.e. 
 $$\{ Y_i(1), Y_i(0) \} \perp\kern{-6pt}\perp A_i \ \mid \ \mathbf{X},\mathbf{U}, \mathcal{N}'.$$
 Thus it is possible that some unobserved feature of the nodes influence both the connections with the focal node and the outcomes. 
-We could quantify this sensitivity in a way similar to either the Rosenbaum framework, see [estimation section](#assumptionsforestimation).
+We could quantify this sensitivity in a way similar to either the Rosenbaum framework, see the [estimation section](#assumptionsforestimation) for more on this.
 However, if we want to parametrize the effect of of the unobserved feature on the outcome, its not clear how we can use VanDerWeele's framework here. 
 
 **2. Unobserved network edges in the non-focal network:** 
