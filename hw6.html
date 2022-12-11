@@ -1,0 +1,40 @@
+<meta charset="utf-8" emacsmode="-*- markdown -*-"><style class="fallback">body{visibility:hidden;}</style><link rel="stylesheet" href="apidoc.css"><link rel="preconnect" href="https://fonts.gstatic.com"><link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet"><style>body{font-family: 'Lato', sans-serif}</style>
+<p style="text-align: left;">
+						[Prev](hw4.html) |
+						<span style="text-align:center;">[Home](index.html)</span>
+</span>
+
+
+
+<H1 align="center"> **Causal Inference for Networks: Wrap up** </H1>
+
+<p align="center">Ajinkya Kokandakar</p>
+
+# Conclusion and Future Work
+
+My project was motivated by a very broad question: <ins>"What is the effect of changing the social network on the outcomes for the individuals in that social network?"</ins>
+However, I showed that the number of potential outcomes is so large that this general problem is interminably difficult.
+Therefore, I tackle a circumscribed version of the problem. Instead of treating the entire network as the treatment, I selected a _focal node_ in the network and considered the effect of being connected to the focal node, i.e. I consider a node to be "treated" if it is connected to the focal node and "untreated" if it is not.
+
+In the [identification section](hw3.html), I showed that the average effect of being connected to the focal node can be identified under a network version of the ignorability condition.
+In the [estimation section](hw4.html) I developed an inverse propensity score estimator for the average connection effect.
+This required using a propensity score estimation algorithm that accounts for the network: `flexBART`.
+Finally, I considered the necessity and reach of the assumptions that I made for driving identification (see [Sensitivity Analysis](hw5.html)).
+
+This project was theoretical in nature, and I was not able to do simulations to demonstrate the method.
+I intend to continue working on this problem.
+The use of a network based propensity score is possibly the biggest limitation of this project. 
+Network propensity score estimation is a genuinely difficult problem and even `flexBART` may not be able to do well if the dataset is small.
+I hope to gauge this in a simulation study. 
+When fully fleshed out, I think this method can be used in many social science applications. For example:
+
+- Does being friends with a well-connected individual increase your income prospects?
+- Do "community leaders" really affect their communities social  attitudes? 
+- Does having gay acquaintances affect attitudes towards same-sex marriage legalization?
+
+All of these examples are relevant for public policy (e.g. should vaccines be made available at community centers and [barber shops](https://www.nytimes.com/2018/05/21/upshot/what-barbershops-can-teach-about-delivering-health-care.html)). 
+Thus, the problem I tackled in my project is relevant, even though it is a very circumscribed version of the question that I was initially interested in. 
+
+
+<script>markdeepOptions = {definitionStyle:'none', tocStyle:'none'}</script>
+<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style><script src="markdeep.min.js" charset="utf-8"></script><script src="https://casual-effects.com/markdeep/latest/markdeep.min.js?" charset="utf-8"></script><script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>
